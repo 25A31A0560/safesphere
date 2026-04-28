@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - SafeSphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="navbar glass">
+  <a href="/" class="logo" style="text-decoration:none;"><div class="logo-icon"><i class="ph-fill ph-shield-check"></i></div><span>SafeSphere</span></a>
+  <nav><ul class="nav-links">
+    <li><button id="theme-toggle" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-moon"></i></button></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/login" class="btn-secondary">Login</a></li>
+    <li><a href="/register" class="btn-primary">Get Started</a></li>
+  </ul></nav>
+</header>
+<main role="main">
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card glass glow-border">
+      <div class="auth-header"><h2>Create Account</h2><p>Join the Universal AI Emergency Response System</p></div>
+      <div id="reg-error" class="alert alert-error hidden"></div>
+      <form id="reg-form" class="auth-form">
+        <div class="form-group"><label for="name">Full Name</label><div class="input-icon"><i class="ph ph-identification-card"></i><input type="text" id="name" name="name" placeholder="John Doe" required></div></div>
+        <div class="form-group"><label for="email">Email Address</label><div class="input-icon"><i class="ph ph-envelope"></i><input type="email" id="email" name="email" placeholder="john@example.com" required></div></div>
+        <div class="form-group"><label for="phone">Phone Number</label><div class="input-icon"><i class="ph ph-phone"></i><input type="tel" id="phone" name="phone" placeholder="+1 234 567 8900" required></div></div>
+        <div class="form-group"><label for="username">Choose Username</label><div class="input-icon"><i class="ph ph-user-plus"></i><input type="text" id="username" name="username" placeholder="Unique username" required></div></div>
+        <div class="form-group"><label for="password">Secure Password</label><div class="input-icon"><i class="ph ph-lock-key"></i><input type="password" id="password" name="password" placeholder="Min 6 characters" required minlength="6"></div></div>
+        <button type="submit" class="btn-primary w-100 mt-4" id="reg-btn">Register System <i class="ph ph-arrow-right"></i></button>
+      </form>
+      <div style="text-align:center;margin:30px 0 20px;position:relative;">
+        <hr style="border-color:rgba(255,255,255,0.1);">
+        <span style="background:var(--surface-color);padding:0 15px;position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:0.9rem;">or sign up with</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-direction:column;">
+        <a href="/api/oauth?provider=google" class="btn-secondary w-100" style="color:var(--text-light);border-color:var(--text-main);"><i class="ph-fill ph-google-logo text-danger" style="margin-right:10px;"></i> Google</a>
+        <a href="/api/oauth?provider=facebook" class="btn-secondary w-100" style="color:var(--text-light);border-color:var(--text-main);"><i class="ph-fill ph-facebook-logo text-primary" style="margin-right:10px;"></i> Facebook</a>
+      </div>
+      <div class="auth-footer mt-4" style="text-align:center;">Already have an account? <a href="/login" class="text-accent">Login</a></div>
+    </div>
+  </div>
+</section>
+</main>
+<script>
+  if (localStorage.getItem('ss_token')) window.location.href = '/dashboard';
+  if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light-theme');
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.documentElement.classList.toggle('light-theme');
+    localStorage.setItem('theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+  });
+  document.getElementById('reg-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('reg-btn');
+    const errEl = document.getElementById('reg-error');
+    errEl.classList.add('hidden');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner-gap"></i> Creating account...';
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: this.name.value, email: this.email.value, phone: this.phone.value, username: this.username.value, password: this.password.value })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Registration failed';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = 'Register System <i class="ph ph-arrow-right"></i>';
+        return;
+      }
+      localStorage.setItem('ss_token', data.token);
+      localStorage.setItem('ss_user', JSON.stringify(data.user));
+      window.location.href = '/dashboard';
+    } catch(err) {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.innerHTML = 'Register System <i class="ph ph-arrow-right"></i>';
+    }
+  });
+</script>
+</body>
+</html>

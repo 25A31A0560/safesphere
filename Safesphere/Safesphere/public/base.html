@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeSphere - Universal AI Emergency Response System</title>
+    <meta name="description" content="SafeSphere is an AI-powered universal emergency detection and response system. Automatically detecting accidents, fires, and panic situations anywhere.">
+    <meta property="og:title" content="SafeSphere - Universal AI Emergency Response">
+    <meta property="og:description" content="SafeSphere detects accidents, fire, and panic situations instantly using AI.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#45a29e">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/lang.js"></script>
+</head>
+<body>
+    <header class="navbar glass" role="banner">
+        <a href="/" class="logo" aria-label="SafeSphere Homepage" style="text-decoration:none;">
+            <div class="logo-icon"><i class="ph-fill ph-shield-check"></i></div>
+            <span>SafeSphere</span>
+        </a>
+        <div class="menu-toggle" id="mobile-menu" aria-label="Toggle navigation menu" role="button" tabindex="0">
+            <i class="ph ph-list"></i>
+        </div>
+        <nav role="navigation" aria-label="Main navigation">
+            <ul class="nav-links" id="nav-links-list">
+                <li><button id="theme-toggle" class="btn-theme" aria-label="Toggle theme" style="background:transparent; border:none; color:var(--text-light); font-size:1.5rem; cursor:pointer;"><i class="ph ph-moon"></i></button></li>
+                <li><button id="settings-trigger" class="btn-theme" aria-label="Open Settings" style="background:transparent; border:none; color:var(--text-light); font-size:1.5rem; cursor:pointer;"><i class="ph ph-gear"></i></button></li>
+                <li><a href="/">Home</a></li>
+                <li id="nav-dashboard-link" style="display:none;"><a href="/dashboard" class="btn-secondary">Dashboard</a></li>
+                <li id="nav-logout-link" style="display:none;"><a href="#" onclick="doLogout()" class="btn-primary">Logout</a></li>
+                <li id="nav-login-link"><a href="/login" class="btn-secondary">Login</a></li>
+                <li id="nav-register-link"><a href="/register" class="btn-primary">Get Started</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Global Settings Panel -->
+    <div id="settings-overlay" class="settings-overlay"></div>
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h3><i class="ph-fill ph-gear"></i> Hardware &amp; Privacy</h3>
+            <button id="close-settings" style="background:none; border:none; color:var(--text-light); font-size:1.5rem; cursor:pointer;"><i class="ph ph-x"></i></button>
+        </div>
+        <div class="settings-content text-sm">
+            <p id="settings-auth-msg" class="hidden text-danger" style="margin-bottom:10px;">Login required to adjust active hardware permissions.</p>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-camera"></i> Background Camera</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Silent AI detection mapping</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_camera_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-video-camera"></i> Video Preview</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Verify AI hardware feed</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_video_preview_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <h3 class="mt-4 mb-2"><i class="ph ph-address-book text-primary"></i> Contacts Management</h3>
+            <div id="contacts-list" style="max-height:200px; overflow-y:auto;">
+                <p class="text-gray text-sm">Loading contacts...</p>
+            </div>
+            <div style="display:flex; gap:5px; margin-top:8px;">
+                <input id="new-contact-name" placeholder="Name" style="flex:1; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:var(--text-light); font-size:0.8rem;">
+                <input id="new-contact-phone" placeholder="Phone" style="flex:1; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:var(--text-light); font-size:0.8rem;">
+                <select id="new-contact-type" style="padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.3); color:var(--text-light); font-size:0.8rem;">
+                    <option value="family">Family</option>
+                    <option value="hospital">Hospital</option>
+                    <option value="fire_station">Fire Station</option>
+                    <option value="emergency">Emergency</option>
+                </select>
+                <button id="add-contact-btn" class="btn-primary btn-sm" style="font-size:0.75rem; white-space:nowrap;">+ Add</button>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-map-pin"></i> Live Location</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">High accuracy GPS polling</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_location_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-car-profile"></i> Accident Detection</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Impact + speed fusion logic</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_telemetry_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-fire"></i> Fire Detection AI</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Background smoke/flame inference</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_fire_detection_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-watch"></i> Bluetooth Pairings</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Wearable biomonitor streams</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_bluetooth_enabled"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <strong style="color:var(--text-light);"><i class="ph ph-bell-ringing"></i> SMS/Call Alerts</strong>
+                    <div style="font-size:0.8rem; opacity:0.7;">Automated emergency dispatch</div>
+                </div>
+                <label class="toggle-switch"><input type="checkbox" id="toggle_alerts_enabled"><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+        <div class="settings-footer">
+            <button id="reset-settings" class="btn-secondary w-100 text-center" style="font-size:0.9rem;">Restore Defaults</button>
+        </div>
+    </div>
+
+    <main role="main" id="page-content"></main>
+
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="ph-fill ph-shield-check"></i> SafeSphere
+            </div>
+            <p><strong>Universal AI Emergency Response System</strong></p>
+            <p>Created by Hackathon Team</p>
+            <p>Contact: <a href="mailto:contact@safesphere.local">contact@safesphere.local</a></p>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 SafeSphere. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/lang.js"></script>
+    <script src="/app.js"></script>
+    <script>
+        // Detect logged-in state from localStorage
+        (function() {
+            const token = localStorage.getItem('ss_token');
+            if (token) {
+                document.getElementById('nav-dashboard-link').style.display = '';
+                document.getElementById('nav-logout-link').style.display = '';
+                document.getElementById('nav-login-link').style.display = 'none';
+                document.getElementById('nav-register-link').style.display = 'none';
+            }
+        })();
+        function doLogout() {
+            localStorage.removeItem('ss_token');
+            localStorage.removeItem('ss_user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

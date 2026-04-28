@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SafeSphere</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="navbar glass">
+  <a href="/" class="logo" style="text-decoration:none;"><div class="logo-icon"><i class="ph-fill ph-shield-check"></i></div><span>SafeSphere</span></a>
+  <nav><ul class="nav-links">
+    <li><button id="theme-toggle" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-moon"></i></button></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/login" class="btn-secondary">Login</a></li>
+    <li><a href="/register" class="btn-primary">Get Started</a></li>
+  </ul></nav>
+</header>
+
+<main role="main">
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-card glass glow-border">
+      <div class="auth-header"><h2>Welcome Back</h2><p>Login to access the SafeSphere Dashboard</p></div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <form id="login-form" class="auth-form">
+        <div class="form-group"><label for="username">Username</label><div class="input-icon"><i class="ph ph-user"></i><input type="text" id="username" name="username" placeholder="Enter your username" required></div></div>
+        <div class="form-group"><label for="password">Password</label><div class="input-icon"><i class="ph ph-lock"></i><input type="password" id="password" name="password" placeholder="Enter your password" required></div></div>
+        <button type="submit" class="btn-primary w-100 mt-4" id="login-btn">Secure Login <i class="ph ph-arrow-right"></i></button>
+      </form>
+      <div style="text-align:right;margin-top:10px;"><a href="/forgot-password" class="text-gray" style="font-size:0.9rem;">Forgot Password?</a></div>
+      <div style="text-align:center;margin:30px 0 20px;position:relative;">
+        <hr style="border-color:rgba(255,255,255,0.1);">
+        <span style="background:var(--surface-color);padding:0 15px;position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:0.9rem;">or sign in with</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-direction:column;">
+        <a href="/api/oauth?provider=google" class="btn-secondary w-100" style="color:var(--text-light);border-color:var(--text-main);"><i class="ph-fill ph-google-logo text-danger" style="margin-right:10px;"></i> Google</a>
+        <a href="/api/oauth?provider=facebook" class="btn-secondary w-100" style="color:var(--text-light);border-color:var(--text-main);"><i class="ph-fill ph-facebook-logo text-primary" style="margin-right:10px;"></i> Facebook</a>
+      </div>
+      <div class="auth-footer mt-4" style="text-align:center;">Don't have a SafeSphere account? <a href="/register" class="text-accent">Get Started</a></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+  // Redirect if already logged in
+  if (localStorage.getItem('ss_token')) window.location.href = '/dashboard';
+
+  // Theme
+  if (localStorage.getItem('theme') === 'light') document.documentElement.classList.add('light-theme');
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.documentElement.classList.toggle('light-theme');
+    localStorage.setItem('theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
+  });
+
+  document.getElementById('login-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner-gap"></i> Logging in...';
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: this.username.value, password: this.password.value })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Invalid credentials';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerHTML = 'Secure Login <i class="ph ph-arrow-right"></i>';
+        return;
+      }
+      localStorage.setItem('ss_token', data.token);
+      localStorage.setItem('ss_user', JSON.stringify(data.user));
+      window.location.href = '/dashboard';
+    } catch(err) {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.innerHTML = 'Secure Login <i class="ph ph-arrow-right"></i>';
+    }
+  });
+</script>
+</body>
+</html>

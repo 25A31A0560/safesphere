@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeSphere - Universal AI Emergency Response System</title>
+  <meta name="description" content="SafeSphere is an AI-powered universal emergency detection and response system.">
+  <meta name="theme-color" content="#45a29e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="navbar glass" role="banner">
+  <a href="/" class="logo" style="text-decoration:none;">
+    <div class="logo-icon"><i class="ph-fill ph-shield-check"></i></div>
+    <span>SafeSphere</span>
+  </a>
+  <div class="menu-toggle" id="mobile-menu"><i class="ph ph-list"></i></div>
+  <nav>
+    <ul class="nav-links" id="nav-links-list">
+      <li><button id="theme-toggle" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-moon"></i></button></li>
+      <li><button id="settings-trigger" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-gear"></i></button></li>
+      <li><a href="/">Home</a></li>
+      <li id="nav-dashboard" style="display:none"><a href="/dashboard" class="btn-secondary">Dashboard</a></li>
+      <li id="nav-logout" style="display:none"><a href="#" onclick="doLogout()" class="btn-primary">Logout</a></li>
+      <li id="nav-login"><a href="/login" class="btn-secondary">Login</a></li>
+      <li id="nav-register"><a href="/register" class="btn-primary">Get Started</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- Settings Panel -->
+<div id="settings-overlay" class="settings-overlay"></div>
+<div id="settings-panel" class="settings-panel">
+  <div class="settings-header">
+    <h3><i class="ph-fill ph-gear"></i> Hardware &amp; Privacy</h3>
+    <button id="close-settings" style="background:none;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-x"></i></button>
+  </div>
+  <div class="settings-content text-sm">
+    <p id="settings-auth-msg" class="hidden text-danger" style="margin-bottom:10px;">Login required to adjust hardware permissions.</p>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-camera"></i> Background Camera</strong><div style="font-size:0.8rem;opacity:0.7;">Silent AI detection mapping</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_camera_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-video-camera"></i> Video Preview</strong><div style="font-size:0.8rem;opacity:0.7;">Verify AI hardware feed</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_video_preview_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <h3 class="mt-4 mb-2"><i class="ph ph-address-book text-primary"></i> Contacts Management</h3>
+    <div id="contacts-list" style="max-height:200px;overflow-y:auto;"><p class="text-gray text-sm">Loading contacts...</p></div>
+    <div style="display:flex;gap:5px;margin-top:8px;">
+      <input id="new-contact-name" placeholder="Name" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;">
+      <input id="new-contact-phone" placeholder="Phone" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;">
+      <select id="new-contact-type" style="padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;">
+        <option value="family">Family</option><option value="hospital">Hospital</option><option value="fire_station">Fire Station</option><option value="emergency">Emergency</option>
+      </select>
+      <button id="add-contact-btn" class="btn-primary btn-sm" style="font-size:0.75rem;white-space:nowrap;">+ Add</button>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-map-pin"></i> Live Location</strong><div style="font-size:0.8rem;opacity:0.7;">High accuracy GPS polling</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_location_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-car-profile"></i> Accident Detection</strong><div style="font-size:0.8rem;opacity:0.7;">Impact + speed fusion logic</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_telemetry_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-fire"></i> Fire Detection AI</strong><div style="font-size:0.8rem;opacity:0.7;">Background smoke/flame inference</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_fire_detection_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-watch"></i> Bluetooth Pairings</strong><div style="font-size:0.8rem;opacity:0.7;">Wearable biomonitor streams</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_bluetooth_enabled"><span class="toggle-slider"></span></label>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;">
+      <div><strong style="color:var(--text-light);"><i class="ph ph-bell-ringing"></i> SMS/Call Alerts</strong><div style="font-size:0.8rem;opacity:0.7;">Automated emergency dispatch</div></div>
+      <label class="toggle-switch"><input type="checkbox" id="toggle_alerts_enabled"><span class="toggle-slider"></span></label>
+    </div>
+  </div>
+  <div class="settings-footer">
+    <button id="reset-settings" class="btn-secondary w-100 text-center" style="font-size:0.9rem;">Restore Defaults</button>
+  </div>
+</div>
+
+<main role="main">
+<!-- 1. HERO -->
+<section class="hero px-4">
+  <div class="container hero-content animate-on-scroll visible">
+    <div class="badge badge-warning mb-2" style="background:rgba(255,184,51,0.1);border:1px solid var(--warning);padding:8px 16px;"><i class="ph-fill ph-sparkle"></i> AI Emergency Response</div>
+    <h1><span class="text-gradient" data-lang="title">SafeSphere</span></h1>
+    <p class="lead" style="font-size:1.5rem;font-weight:bold;color:var(--text-light);margin-top:-10px;" data-lang="subtitle">"AI-powered universal emergency detection and response system"</p>
+    <p style="font-size:1.2rem;" data-lang="desc">Automatically detects accidents, fire, and panic situations anywhere and provides instant help.</p>
+    <div class="mt-4" style="display:flex;gap:15px;">
+      <a href="/login" class="btn-secondary" style="font-size:1.2rem;padding:15px 30px;"><i class="ph ph-sign-in"></i> <span data-lang="login">Login</span></a>
+      <a href="/register" class="btn-primary" style="font-size:1.2rem;padding:15px 30px;"><i class="ph ph-user-plus"></i> <span data-lang="signup">Sign Up</span></a>
+    </div>
+  </div>
+  <div class="hero-graphic"></div>
+</section>
+
+<!-- 2. ABOUT -->
+<section id="about" class="py-section glass" style="border-radius:0;border-left:none;border-right:none;background:rgba(31,40,51,0.2);">
+  <div class="container animate-on-scroll text-center">
+    <h2 class="section-title">About <span class="text-accent">SafeSphere</span></h2>
+    <p class="section-subtitle" style="font-size:1.2rem;line-height:1.8;">SafeSphere is a fully AI-powered system that works anywhere without user interaction and can save lives by detecting emergencies in real-time. Whether on the road, at home, or in public spaces, the AI constantly monitors for signs of danger, ensuring help arrives instantly.</p>
+  </div>
+</section>
+
+<!-- 3. FEATURES -->
+<section class="py-section">
+  <div class="container animate-on-scroll">
+    <h2 class="section-title">Universal <span class="text-primary">Features</span></h2>
+    <p class="section-subtitle">Multi-modal AI detection algorithms actively safeguarding your environment.</p>
+    <div class="grid-3 mt-4">
+      <div class="feature-card glass glow-border"><i class="ph ph-car-profile feature-icon"></i><h3>AI Accident Detection</h3><p>Monitors motion sensors to instantly detect vehicular or personal accidents.</p></div>
+      <div class="feature-card glass glow-border"><i class="ph ph-fire feature-icon"></i><h3>AI Fire Detection</h3><p>Computer vision analyzes camera feeds for flames and smoke patterns to detect fire outbreaks early.</p></div>
+      <div class="feature-card glass glow-border"><i class="ph ph-users-three feature-icon"></i><h3>Panic &amp; Crowd Detection</h3><p>Identifies panic situations and sudden crowd dispersion indicating dangerous events unfolding.</p></div>
+      <div class="feature-card glass glow-border"><i class="ph ph-microphone-stage feature-icon"></i><h3>Voice Emergency</h3><p>Listens for voice commands like "Help!" or "Fire!" using natural language processing.</p></div>
+      <div class="feature-card glass glow-border" style="grid-column:span 1 / -1;max-width:600px;margin:0 auto;"><i class="ph ph-globe-hemisphere-east feature-icon"></i><h3>Works Everywhere</h3><p>Adaptable for roads, homes, hospitals, malls, airports, railway stations, and tourist places.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. CAMERA AI -->
+<section class="py-section" style="background:rgba(0,0,0,0.3);">
+  <div class="container grid-2 animate-on-scroll">
+    <div class="text-content">
+      <h2 class="section-title" style="text-align:left;">Camera <span class="text-accent">AI</span></h2>
+      <p style="font-size:1.1rem;margin-bottom:20px;">Our advanced computer vision models actively scan environments using available cameras to detect visual anomalies.</p>
+      <p>It can precisely identify <strong>fire outbreaks</strong>, <strong>accidents</strong>, and <strong>panic situations</strong> in real-time without relying on external triggers.</p>
+    </div>
+    <div class="visual-content pulse-icon glow-border"><i class="ph ph-camera"></i></div>
+  </div>
+</section>
+
+<!-- 5. WORKS WITHOUT CAMERA -->
+<section class="py-section">
+  <div class="container grid-2 reverse animate-on-scroll">
+    <div class="text-content">
+      <h2 class="section-title" style="text-align:left;">Works Without <span class="text-primary">Camera</span></h2>
+      <p style="font-size:1.1rem;">Privacy matters. SafeSphere utilizes backup detection methods completely independent of cameras:</p>
+      <ul style="list-style:none;margin-top:20px;font-size:1.1rem;line-height:2;">
+        <li><i class="ph-fill ph-check-circle" style="color:var(--success);margin-right:10px;"></i><strong>Accelerometer:</strong> Sudden impact analysis.</li>
+        <li><i class="ph-fill ph-check-circle" style="color:var(--success);margin-right:10px;"></i><strong>Gyroscope:</strong> Unusual rotational changes or flips.</li>
+        <li><i class="ph-fill ph-check-circle" style="color:var(--success);margin-right:10px;"></i><strong>GPS:</strong> Sudden drastic speed drops indicating collision.</li>
+        <li><i class="ph-fill ph-check-circle" style="color:var(--success);margin-right:10px;"></i><strong>No Movement Detection:</strong> Prolonged immobility post-impact.</li>
+      </ul>
+    </div>
+    <div class="visual-content pulse-icon glow-border"><i class="ph ph-device-mobile"></i></div>
+  </div>
+</section>
+
+<!-- 6. SEVERITY -->
+<section class="py-section glass" style="border-radius:0;border-left:none;border-right:none;">
+  <div class="container animate-on-scroll text-center">
+    <h2 class="section-title">Severity <span class="text-danger">Detection</span></h2>
+    <p class="section-subtitle">Intelligently classifies the magnitude of emergencies to dispatch appropriate level of help.</p>
+    <div class="grid-3 mt-4">
+      <div class="feature-card" style="border:1px solid var(--primary-color);"><i class="ph ph-car text-primary" style="font-size:2.5rem;margin-bottom:10px;"></i><h3 class="text-primary">Accidents</h3><p>Categorizes crashes into Minor, Moderate, and Severe based on g-force metrics.</p></div>
+      <div class="feature-card" style="border:1px solid var(--warning);"><i class="ph ph-campfire text-warning" style="font-size:2.5rem;margin-bottom:10px;"></i><h3 class="text-warning">Fires</h3><p>Assesses fire scale from pixel spread and volumetric smoke density.</p></div>
+      <div class="feature-card" style="border:1px solid var(--danger);"><i class="ph ph-warning-octagon text-danger" style="font-size:2.5rem;margin-bottom:10px;"></i><h3 class="text-danger">Panic Levels</h3><p>Identifies panic intensities based on audio decibels and rapid crowd motion vectors.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. COUNTDOWN -->
+<section class="py-section">
+  <div class="container grid-2 animate-on-scroll">
+    <div class="text-content">
+      <h2 class="section-title" style="text-align:left;"><i class="ph ph-clock text-accent"></i> Smart Countdown System</h2>
+      <p style="margin-bottom:15px;">To maintain user control, the system initiates a countdown before dispatching external alerts, featuring a <strong>Cancel Option</strong> to prevent false alarms.</p>
+      <p><strong>Adaptive Timing:</strong> Default 10-second countdown dynamically shifts depending on context (Fire 5 sec, Panic 8 sec, Accident 10 sec).</p>
+      <h2 class="section-title mt-4" style="text-align:left;font-size:2rem;"><i class="ph-fill ph-lightning text-danger"></i> Quick Trigger Feature</h2>
+      <p>For high-severity crashes, the system instantly sends an alert packet <strong>before</strong> the phone undergoes a potential hardware shutdown, bypassing standard countdowns.</p>
+    </div>
+    <div class="visual-content text-danger glow-border" style="font-size:5rem;font-weight:800;font-family:monospace;background:rgba(255,76,76,0.05);border:2px solid rgba(255,76,76,0.2);">00:05</div>
+  </div>
+</section>
+
+<!-- 8. EMERGENCY RESPONSE -->
+<section class="py-section glass" style="border-radius:0;border-left:none;border-right:none;">
+  <div class="container animate-on-scroll text-center">
+    <h2 class="section-title">Emergency <span class="text-danger">Response</span> Protocol</h2>
+    <p class="section-subtitle">When the AI decides action is required, SafeSphere executes multiple protocols in milliseconds.</p>
+    <div class="grid-3 mt-4">
+      <div class="feature-card text-center" style="background:rgba(0,0,0,0.4)"><i class="ph-fill ph-phone-call feature-icon text-danger"></i><h3>Auto Call</h3><p>Automatically triggers a call to universal emergency numbers (e.g. 112).</p></div>
+      <div class="feature-card text-center" style="background:rgba(0,0,0,0.4)"><i class="ph-fill ph-chat-text feature-icon text-primary"></i><h3>Live SMS</h3><p>Dispatches text messages containing live GPS tracking links to dispatchers.</p></div>
+      <div class="feature-card text-center" style="background:rgba(0,0,0,0.4)"><i class="ph-fill ph-users feature-icon text-warning"></i><h3>Contact Alerts</h3><p>Notifies pre-configured family members and emergency contacts instantly.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-logo"><i class="ph-fill ph-shield-check"></i> SafeSphere</div>
+    <p><strong>Universal AI Emergency Response System</strong></p>
+    <p>Created by Hackathon Team</p>
+    <p>Contact: <a href="mailto:contact@safesphere.local">contact@safesphere.local</a></p>
+  </div>
+  <div class="footer-bottom"><p>&copy; 2026 SafeSphere. All rights reserved.</p></div>
+</footer>
+
+<script src="/app.js"></script>
+<script>
+  // Nav auth state
+  if (localStorage.getItem('ss_token')) {
+    document.getElementById('nav-dashboard').style.display = '';
+    document.getElementById('nav-logout').style.display = '';
+    document.getElementById('nav-login').style.display = 'none';
+    document.getElementById('nav-register').style.display = 'none';
+  }
+  // Animate on scroll
+  const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+  document.querySelectorAll('.animate-on-scroll').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

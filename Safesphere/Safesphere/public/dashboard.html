@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeSphere Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- Settings Panel -->
+<div id="settings-overlay" class="settings-overlay"></div>
+<div id="settings-panel" class="settings-panel">
+  <div class="settings-header">
+    <h3><i class="ph-fill ph-gear"></i> Hardware &amp; Privacy</h3>
+    <button id="close-settings" style="background:none;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-x"></i></button>
+  </div>
+  <div class="settings-content text-sm">
+    <p id="settings-auth-msg" class="hidden text-danger" style="margin-bottom:10px;">Login required to adjust hardware permissions.</p>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-camera"></i> Background Camera</strong><div style="font-size:0.8rem;opacity:0.7;">Silent AI detection mapping</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_camera_enabled"><span class="toggle-slider"></span></label></div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-video-camera"></i> Video Preview</strong><div style="font-size:0.8rem;opacity:0.7;">Verify AI hardware feed</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_video_preview_enabled"><span class="toggle-slider"></span></label></div>
+    <h3 class="mt-4 mb-2"><i class="ph ph-address-book text-primary"></i> Contacts Management</h3>
+    <div id="contacts-list" style="max-height:200px;overflow-y:auto;"><p class="text-gray text-sm">Loading contacts...</p></div>
+    <div style="display:flex;gap:5px;margin-top:8px;">
+      <input id="new-contact-name" placeholder="Name" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;">
+      <input id="new-contact-phone" placeholder="Phone" style="flex:1;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;">
+      <select id="new-contact-type" style="padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);font-size:0.8rem;"><option value="family">Family</option><option value="hospital">Hospital</option><option value="fire_station">Fire Station</option></select>
+      <button id="add-contact-btn" class="btn-primary btn-sm" style="font-size:0.75rem;white-space:nowrap;">+ Add</button>
+    </div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-map-pin"></i> Live Location</strong><div style="font-size:0.8rem;opacity:0.7;">High accuracy GPS polling</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_location_enabled"><span class="toggle-slider"></span></label></div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-car-profile"></i> Accident Detection</strong><div style="font-size:0.8rem;opacity:0.7;">Impact + speed fusion logic</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_telemetry_enabled"><span class="toggle-slider"></span></label></div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-fire"></i> Fire Detection AI</strong><div style="font-size:0.8rem;opacity:0.7;">Background smoke/flame inference</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_fire_detection_enabled"><span class="toggle-slider"></span></label></div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-watch"></i> Bluetooth Pairings</strong><div style="font-size:0.8rem;opacity:0.7;">Wearable biomonitor streams</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_bluetooth_enabled"><span class="toggle-slider"></span></label></div>
+    <div class="setting-item" style="display:flex;justify-content:space-between;align-items:center;"><div><strong style="color:var(--text-light);"><i class="ph ph-bell-ringing"></i> SMS/Call Alerts</strong><div style="font-size:0.8rem;opacity:0.7;">Automated emergency dispatch</div></div><label class="toggle-switch"><input type="checkbox" id="toggle_alerts_enabled"><span class="toggle-slider"></span></label></div>
+  </div>
+  <div class="settings-footer"><button id="reset-settings" class="btn-secondary w-100 text-center" style="font-size:0.9rem;">Restore Defaults</button></div>
+</div>
+
+<!-- Countdown Modal -->
+<div id="countdown-modal" class="modal-overlay hidden" role="alertdialog" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,76,76,0.95);z-index:9998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+  <div class="text-center">
+    <h1 class="text-white" style="font-size:3rem;margin-bottom:10px;"><i class="ph-fill ph-warning-octagon"></i> EMERGENCY DETECTED</h1>
+    <p class="text-white mb-4" style="font-size:1.5rem;" id="countdown-reason">Auto-dispatching alerts in...</p>
+    <div id="countdown-timer" style="font-size:8rem;font-weight:800;color:white;line-height:1;font-variant-numeric:tabular-nums;">10</div>
+    <button id="cancel-countdown" class="btn-secondary mt-4" style="border-color:white;color:white;font-size:1.2rem;background:rgba(0,0,0,0.3);">Cancel (False Alarm)</button>
+  </div>
+</div>
+
+<!-- Consent Modal -->
+<div id="consent-modal" class="modal-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);">
+  <div class="panel glass glow-border" style="max-width:500px;width:90%;padding:30px;">
+    <h2 class="mb-4 text-center">Privacy &amp; Consent</h2>
+    <div class="consent-step" id="consent-camera">
+      <h3>Allow SafeSphere to run camera in background</h3>
+      <p class="text-gray mb-4" style="line-height:1.4;margin:15px 0;">SafeSphere uses the camera only to detect fire, smoke, and crowd panic. No video is uploaded without your explicit consent.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary w-100" onclick="nextConsent('camera',true)">Allow Background Access</button>
+        <button class="btn-secondary w-100" onclick="nextConsent('camera',true)">Only While App Is Open</button>
+        <button class="btn-secondary w-100" style="border-color:var(--danger);color:var(--danger);" onclick="nextConsent('camera',false)">Deny</button>
+      </div>
+    </div>
+    <div class="consent-step hidden" id="consent-bluetooth">
+      <h3>Pair your smartwatch or BLE sensor</h3>
+      <p class="text-gray mb-4" style="line-height:1.4;margin:15px 0;">Pairing enables heart rate and SpO2 monitoring to improve emergency detection.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary w-100" onclick="nextConsent('bluetooth',true)">Pair Device</button>
+        <button class="btn-secondary w-100" onclick="nextConsent('bluetooth',false)">Skip</button>
+      </div>
+    </div>
+    <div class="consent-step hidden" id="consent-location">
+      <h3>Allow location &amp; emergency contact access</h3>
+      <p class="text-gray mb-4" style="line-height:1.4;margin:15px 0;">SafeSphere will send your live location and call emergency services when a verified emergency occurs.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn-primary w-100" onclick="finishConsent(true)">Allow</button>
+        <button class="btn-secondary w-100" style="border-color:var(--danger);color:var(--danger);" onclick="finishConsent(false)">Deny</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="navbar glass" role="banner">
+  <a href="/" class="logo" style="text-decoration:none;"><div class="logo-icon"><i class="ph-fill ph-shield-check"></i></div><span>SafeSphere</span></a>
+  <div class="menu-toggle" id="mobile-menu"><i class="ph ph-list"></i></div>
+  <nav><ul class="nav-links">
+    <li><button id="theme-toggle" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-moon"></i></button></li>
+    <li><button id="settings-trigger" style="background:transparent;border:none;color:var(--text-light);font-size:1.5rem;cursor:pointer;"><i class="ph ph-gear"></i></button></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/dashboard" class="btn-secondary">Dashboard</a></li>
+    <li><a href="#" id="logout-btn" class="btn-primary">Logout</a></li>
+  </ul></nav>
+</header>
+
+<main role="main">
+<section class="dashboard-section py-section">
+  <div class="container">
+    <header class="mb-4" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;">
+      <h1>SafeSphere Command Center</h1>
+      <div style="display:flex;gap:10px;">
+        <button id="manual-trigger-accident" class="btn-primary" style="background:var(--danger);color:white;border:none;box-shadow:0 0 15px rgba(255,0,0,0.5);" aria-label="Trigger accident SOS"><i class="ph-fill ph-car-profile"></i> Accident SOS</button>
+        <button id="manual-trigger-fire" class="btn-primary" style="background:#ff8c00;color:white;border:none;box-shadow:0 0 15px rgba(255,140,0,0.5);" aria-label="Trigger fire SOS"><i class="ph-fill ph-fire"></i> Fire SOS</button>
+      </div>
+    </header>
+
+    <div class="auto-grid gap-4">
+      <!-- System Status -->
+      <div class="panel glass glow-border">
+        <h2><i class="ph ph-activity text-accent"></i> System Status</h2>
+        <video id="camera-preview-window" class="glass hidden" autoplay muted playsinline style="width:100%;max-height:220px;border-radius:12px;object-fit:cover;margin-bottom:20px;background:rgba(0,0,0,0.5);"></video>
+        <div class="status-grid mt-4">
+          <div class="status-card"><i class="ph ph-camera text-primary"></i><h4>Camera AI</h4><span class="badge badge-warning" id="cam-status-badge">Awaiting Consent</span><button id="toggle-camera" class="btn-secondary btn-sm hidden" style="font-size:0.8rem;padding:4px 8px;">Stop Camera</button></div>
+          <div class="status-card" id="wearable-card">
+            <i class="ph ph-watch text-accent" id="watch-icon"></i><h4>Wearables</h4>
+            <span class="badge badge-warning" id="bt-status">Disconnected</span>
+            <button id="connect-bt" class="btn-secondary btn-sm mt-2">Pair Device</button>
+            <div id="health-data" class="hidden mt-2 text-sm text-gray text-left w-100">
+              <div style="display:flex;justify-content:space-between;">HR: <span class="text-white" id="hr-value">--</span></div>
+              <div style="display:flex;justify-content:space-between;">SpO2: <span class="text-white" id="spo2-value">--</span></div>
+            </div>
+          </div>
+          <div class="status-card" style="grid-column:span 2/span 2;">
+            <div style="display:flex;gap:20px;align-items:center;justify-content:center;width:100%;">
+              <div style="flex:1;"><i class="ph ph-map-pin text-primary" style="font-size:2rem;"></i><h4 style="margin:5px 0;">GPS Tracking</h4><span class="badge badge-warning" id="gps-status-badge">Awaiting Consent</span></div>
+              <div style="flex:1;"><i class="ph ph-gauge text-danger" style="font-size:2rem;"></i><h4 style="margin:5px 0;">Live Telemetry</h4><div class="text-left text-sm w-100" style="line-height:1.2;">Spd: <span class="text-white">45 km/h</span><br>Acc: <span class="text-white">9.8 m/s²</span></div></div>
+            </div>
+          </div>
+          <div class="status-card" id="accident-status-card"><span id="status-icon-accident" style="font-size:2rem;filter:grayscale(1);transition:filter 0.3s;">&#x1F697;</span><h4 style="margin:5px 0;">Accident Detection</h4><span class="badge badge-warning" id="accident-status-label">OFF</span></div>
+          <div class="status-card" id="fire-status-card"><span id="status-icon-fire" style="font-size:2rem;filter:grayscale(1);transition:filter 0.3s;">&#x1F525;</span><h4 style="margin:5px 0;">Fire Tracker</h4><span class="badge badge-warning" id="fire-status-label">OFF</span></div>
+        </div>
+      </div>
+
+      <!-- Event Log -->
+      <div class="panel glass glow-border">
+        <h2><i class="ph ph-bell-ringing text-danger"></i> Event Log</h2>
+        <div id="alerts-container" class="alerts-list mt-4" role="log" aria-live="polite" style="max-height:500px;"><p class="text-center text-gray">Loading event log...</p></div>
+        <div style="display:flex;gap:10px;">
+          <button id="refresh-alerts" class="btn-primary w-100 mt-4">Refresh <i class="ph ph-arrows-clockwise"></i></button>
+          <button id="clear-all-alerts" class="btn-secondary w-100 mt-4" style="border-color:var(--danger);color:var(--danger);">Clear All <i class="ph ph-trash"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="auto-grid gap-4 mt-4">
+      <!-- Contacts -->
+      <div class="panel glass glow-border">
+        <h2><i class="ph ph-address-book text-primary"></i> <span data-lang="contacts">Contacts Management</span></h2>
+        <div id="full-contacts-list" class="mt-4" style="max-height:300px;overflow-y:auto;"><p class="text-gray text-sm">Loading contacts...</p></div>
+        <div class="mt-4 p-3" style="background:rgba(255,255,255,0.05);border-radius:8px;">
+          <h4 class="mb-2">Add New Contact</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <input id="dash-contact-name" placeholder="Name" style="flex:1;min-width:120px;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);">
+            <input id="dash-contact-phone" placeholder="Phone" style="flex:1;min-width:120px;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);">
+            <select id="dash-contact-type" style="padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);"><option value="family">Family</option><option value="hospital">Hospital</option><option value="fire_station">Fire Station</option><option value="emergency">Emergency</option></select>
+            <button id="dash-add-contact-btn" class="btn-primary">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Communication -->
+      <div class="panel glass glow-border">
+        <h2><i class="ph ph-phone-call text-warning"></i> <span data-lang="communicate">Emergency Communication</span></h2>
+        <p class="text-gray mt-2 mb-4 text-sm">Manually contact hospitals, fire stations, or family members.</p>
+        <div class="form-group mb-4">
+          <label>Select Recipient</label>
+          <select id="comm-recipient" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3);color:var(--text-light);"><option value="">Loading...</option></select>
+        </div>
+        <div style="display:flex;gap:15px;margin-top:20px;">
+          <button id="btn-call-now" class="btn-primary w-100" style="background:var(--success);border-color:var(--success);"><i class="ph-fill ph-phone-call"></i> <span data-lang="call_now">Call Now</span></button>
+          <button id="btn-send-msg" class="btn-secondary w-100"><i class="ph-fill ph-chat-text"></i> <span data-lang="send_msg">Send Message</span></button>
+        </div>
+        <div id="comm-status" class="mt-3 text-center text-sm" style="height:20px;color:var(--accent-color);"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer" role="contentinfo">
+  <div class="footer-content"><div class="footer-logo"><i class="ph-fill ph-shield-check"></i> SafeSphere</div><p><strong>Universal AI Emergency Response System</strong></p></div>
+  <div class="footer-bottom"><p>&copy; 2026 SafeSphere. All rights reserved.</p></div>
+</footer>
+
+<script src="/app.js"></script>
+<script>
+  // Auth guard
+  const _token = localStorage.getItem('ss_token');
+  if (!_token) { window.location.href = '/login'; }
+  document.getElementById('logout-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    localStorage.removeItem('ss_token');
+    localStorage.removeItem('ss_user');
+    window.location.href = '/login';
+  });
+
+  // Handle OAuth token from URL (Google/Facebook redirect)
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const user = params.get('user');
+    if (token) {
+      localStorage.setItem('ss_token', token);
+      if (user) { try { localStorage.setItem('ss_user', decodeURIComponent(user)); } catch(e){} }
+      window.history.replaceState({}, '', '/dashboard');
+    }
+  })();
+
+  // Consent flow
+  let userConsents = { camera: false, bluetooth: false, location: false };
+  const _needsConsent = !localStorage.getItem('ss_consented');
+  if (!_needsConsent) document.getElementById('consent-modal').style.display = 'none';
+
+  function nextConsent(step, value) {
+    userConsents[step] = value;
+    document.getElementById('consent-' + step).classList.add('hidden');
+    if (step === 'camera') document.getElementById('consent-bluetooth').classList.remove('hidden');
+    else if (step === 'bluetooth') {
+      document.getElementById('consent-location').classList.remove('hidden');
+      if (value) { try { document.getElementById('connect-bt').click(); } catch(e){} }
+    }
+  }
+  function finishConsent(locValue) {
+    userConsents.location = locValue;
+    document.getElementById('consent-modal').style.display = 'none';
+    localStorage.setItem('ss_consented', '1');
+    const token = localStorage.getItem('ss_token');
+    fetch('/api/consent', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body: JSON.stringify(userConsents) });
+    if (window.SafeSphereApp && window.SafeSphereApp.initPerms) window.SafeSphereApp.initPerms(userConsents);
+  }
+</script>
+</body>
+</html>
